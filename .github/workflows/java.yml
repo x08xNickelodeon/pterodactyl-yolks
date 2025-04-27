@@ -10,7 +10,7 @@ on:
       - java/**
 jobs:
   push:
-    name: "pterodactyl-yolks:java_${{ matrix.tag }}"
+    name: "pterodactyl-yolks-berrry:java_${{ matrix.tag }}"
     runs-on: ubuntu-latest
     permissions:
       contents: read
