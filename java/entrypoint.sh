@@ -244,8 +244,7 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 		FLAGS+=("-Dminecraft.api.auth.host=https://authserver.mojang.com/ -Dminecraft.api.account.host=https://api.mojang.com/ -Dminecraft.api.services.host=https://api.minecraftservices.com/ -Dminecraft.api.session.host=https://api.minehut.com/mitm/proxy")
 	fi
 
-	SERVER_MEMORY_REAL=$(($SERVER_MEMORY*$MAXIMUM_RAM/100))
-	PARSED="java ${FLAGS[*]} -Xms256M -Xmx${SERVER_MEMORY_REAL}M -jar ${SERVER_JARFILE} nogui"
+	PARSED="java ${FLAGS[*]} -Xms1024M -jar ${SERVER_JARFILE} nogui"
 
 	# Display the command we're running in the output, and then execute it with the env
 	# from the container itself.
