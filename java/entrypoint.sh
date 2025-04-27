@@ -206,6 +206,20 @@ if [ -f "config.yml" ]; then
 	fi
 fi
 
+echo -e "${LOG_PREFIX} Fetching RAM allocation from API..."
+
+API_URL="https://example.com/api/info" # <-- change this to the real URL
+RAM_MB=$(curl -s "$API_URL" | jq -r '.ram')
+
+if [[ -n "$RAM_MB" && "$RAM_MB" =~ ^[0-9]+$ ]]; then
+    echo -e "${LOG_PREFIX} RAM allocation from API: ${RAM_MB} MB"
+    JVM_XMS="-Xms${RAM_MB}M"
+else
+    echo -e "${LOG_PREFIX} Failed to fetch RAM from API. Using default 1024M."
+    JVM_XMS="-Xms512M"
+fi
+
+
 if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 	FLAGS=("-Dterminal.jline=false -Dterminal.ansi=true")
 
@@ -244,7 +258,7 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 		FLAGS+=("-Dminecraft.api.auth.host=https://authserver.mojang.com/ -Dminecraft.api.account.host=https://api.mojang.com/ -Dminecraft.api.services.host=https://api.minecraftservices.com/ -Dminecraft.api.session.host=https://api.minehut.com/mitm/proxy")
 	fi
 
-	PARSED="java ${FLAGS[*]} -Xms1024M -jar ${SERVER_JARFILE} nogui"
+	PARSED="java ${FLAGS[*]} ${JVM_XMS} -jar ${SERVER_JARFILE} nogui"
 
 	# Display the command we're running in the output, and then execute it with the env
 	# from the container itself.
