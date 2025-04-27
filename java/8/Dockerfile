@@ -1,6 +1,6 @@
 FROM        --platform=$TARGETOS/$TARGETARCH eclipse-temurin:8u312-b07-jdk-focal
 
-LABEL       author="x08xNickelodeon" maintainer="x08xNickelodeon@gmail.com"
+LABEL       author="x08xNickelodeon " maintainer="x08xNickelodeon@gmail.com"
 
 LABEL       org.opencontainers.image.source="https://github.com/x08xNickelodeon/pterodactyl-yolks"
 LABEL       org.opencontainers.image.licenses=MIT
