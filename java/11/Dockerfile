@@ -1,8 +1,8 @@
 FROM        --platform=$TARGETOS/$TARGETARCH eclipse-temurin:11.0.13_8-jdk-focal
 
-LABEL       author="Robert Jansen" maintainer="rjansengd@gmail.com"
+LABEL       author="x08xNickelodeon" maintainer="x08xNickelodeon@gmail.com"
 
-LABEL       org.opencontainers.image.source="https://github.com/mcjars/pterodactyl-yolks"
+LABEL       org.opencontainers.image.source="https://github.com/x08xNickelodeon/pterodactyl-yolks"
 LABEL       org.opencontainers.image.licenses=MIT
 
 RUN         rm -rf /usr/bin/dd \
