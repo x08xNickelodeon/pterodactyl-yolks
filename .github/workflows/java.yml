@@ -10,7 +10,7 @@ on:
       - java/**
 jobs:
   push:
-    name: "pterodactyl-yolks-berrry:java_${{ matrix.tag }}"
+    name: "pterodactyl-yolks:java_${{ matrix.tag }}"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,5 +46,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/x08xnickelodeon/pterodactyl-yolks:java_${{ matrix.tag }}
+            ghcr.io/x08xnickelodeon/pterodactyl-yolks:berrry_java_${{ matrix.tag }}
           visibility: public
