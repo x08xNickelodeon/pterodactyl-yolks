@@ -259,8 +259,53 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 	fi
 
 	PARSED="java ${FLAGS[*]} ${JVM_XMS} -jar ${SERVER_JARFILE} nogui & SERVER_PID=$!"
-        SERVER_PID=$!
 
+	NO_PLAYER_COUNT=0
+	EXTRA_DELAY=0
+
+	# Function to query number of players using server query
+	check_players() {
+		QUERY_RESPONSE=$(echo -e "\xfe\x01" | nc -w 2 127.0.0.1 "$SERVER_PORT" 2>/dev/null | tr -d '\000')
+		if [[ "$QUERY_RESPONSE" == *"players"* ]]; then
+			# Some servers may show "players:0" or similar
+			if echo "$QUERY_RESPONSE" | grep -Eiq 'players\s*[:=]\s*[1-9]'; then
+				return 1 # players found
+			else
+				return 0 # no players
+			fi
+		else
+			return 0 # assume no players if failed to read
+		fi
+	}	
+
+	# Monitor loop
+	while kill -0 $SERVER_PID 2>/dev/null; do
+		sleep 30
+
+		if (( EXTRA_DELAY > 0 )); then
+			echo -e "${LOG_PREFIX} Extra delay active, waiting 30s before resuming checks..."
+			((EXTRA_DELAY--))
+			continue
+		fi
+
+		if check_players; then
+			((NO_PLAYER_COUNT++))
+			echo -e "${LOG_PREFIX} No players detected. Inactivity count: $NO_PLAYER_COUNT/10"
+		else
+			echo -e "${LOG_PREFIX} Player(s) detected. Resetting inactivity counter."
+			NO_PLAYER_COUNT=0
+			EXTRA_DELAY=1
+		fi
+	
+		if (( NO_PLAYER_COUNT >= 10 )); then
+			echo -e "${LOG_PREFIX} No players for 5 minutes. Stopping server..."
+			kill $SERVER_PID
+			break
+		fi
+	done
+
+	# Wait for server to clean up
+	wait $SERVER_PID
 
 	# Display the command we're running in the output, and then execute it with the env
 	# from the container itself.
@@ -280,49 +325,3 @@ else
 	exec env ${PARSED}
 fi
 
-NO_PLAYER_COUNT=0
-EXTRA_DELAY=0
-
-# Function to query number of players using server query
-check_players() {
-	QUERY_RESPONSE=$(echo -e "\xfe\x01" | nc -w 2 127.0.0.1 "$SERVER_PORT" 2>/dev/null | tr -d '\000')
-	if [[ "$QUERY_RESPONSE" == *"players"* ]]; then
-		# Some servers may show "players:0" or similar
-		if echo "$QUERY_RESPONSE" | grep -Eiq 'players\s*[:=]\s*[1-9]'; then
-			return 1 # players found
-		else
-			return 0 # no players
-		fi
-	else
-		return 0 # assume no players if failed to read
-	fi
-}
-
-# Monitor loop
-while kill -0 $SERVER_PID 2>/dev/null; do
-	sleep 30
-
-	if (( EXTRA_DELAY > 0 )); then
-		echo -e "${LOG_PREFIX} Extra delay active, waiting 30s before resuming checks..."
-		((EXTRA_DELAY--))
-		continue
-	fi
-
-	if check_players; then
-		((NO_PLAYER_COUNT++))
-		echo -e "${LOG_PREFIX} No players detected. Inactivity count: $NO_PLAYER_COUNT/10"
-	else
-		echo -e "${LOG_PREFIX} Player(s) detected. Resetting inactivity counter."
-		NO_PLAYER_COUNT=0
-		EXTRA_DELAY=1
-	fi
-
-	if (( NO_PLAYER_COUNT >= 10 )); then
-		echo -e "${LOG_PREFIX} No players for 5 minutes. Stopping server..."
-		kill $SERVER_PID
-		break
-	fi
-done
-
-# Wait for server to clean up
-wait $SERVER_PID
