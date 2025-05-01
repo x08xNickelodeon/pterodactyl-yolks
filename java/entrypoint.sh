@@ -260,6 +260,11 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 
 	PARSED="java ${FLAGS[*]} ${JVM_XMS} -jar ${SERVER_JARFILE} nogui & SERVER_PID=$!"
 
+	# Display the command we're running in the output, and then execute it with the env
+	# from the container itself.
+	printf "${LOG_PREFIX} %s\n" "$PARSED"
+	# shellcheck disable=SC2086
+	exec env ${PARSED}
 	NO_PLAYER_COUNT=0
 	EXTRA_DELAY=0
 
@@ -306,12 +311,6 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 
 	# Wait for server to clean up
 	wait $SERVER_PID
-
-	# Display the command we're running in the output, and then execute it with the env
-	# from the container itself.
-	printf "${LOG_PREFIX} %s\n" "$PARSED"
-	# shellcheck disable=SC2086
-	exec env ${PARSED}
 else
 	# Convert all of the "{{VARIABLE}}" parts of the command into the expected shell
 	# variable format of "${VARIABLE}" before evaluating the string and automatically
