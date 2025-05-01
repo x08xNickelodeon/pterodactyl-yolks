@@ -258,7 +258,7 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 		FLAGS+=("-Dminecraft.api.auth.host=https://authserver.mojang.com/ -Dminecraft.api.account.host=https://api.mojang.com/ -Dminecraft.api.services.host=https://api.minecraftservices.com/ -Dminecraft.api.session.host=https://api.minehut.com/mitm/proxy")
 	fi
 
-	PARSED="java ${FLAGS[*]} ${JVM_XMS} -jar ${SERVER_JARFILE} nogui & SERVER_PID=$!"
+	PARSED="java ${FLAGS[*]} ${JVM_XMS} -jar ${SERVER_JARFILE} nogui & SERVER_PID=minecraftserver123456"
 
 	# Display the command we're running in the output, and then execute it with the env
 	# from the container itself.
