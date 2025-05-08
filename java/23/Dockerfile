@@ -15,9 +15,8 @@ RUN         apt-get update -y \
             && apt-get install -y curl jq unzip lsof ca-certificates openssl git tar sqlite3 fontconfig libfreetype6 tzdata iproute2 libstdc++6
 
 # Install mc-monitor globally
-RUN         curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-            && apt-get install -y nodejs \
-            && npm install -g mc-monitor
+RUN apt-get install -y nodejs npm \
+    && npm install -g mc-monitor
 
 # Download malware scanner
 RUN         curl -sSL https://github.com/OpticFusion1/MCAntiMalware/releases/latest/download/MCAntiMalware.jar \
