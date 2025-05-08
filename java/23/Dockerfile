@@ -4,32 +4,32 @@ LABEL       author="x08xNickelodeon" maintainer="x08xNickelodeon@gmail.com"
 LABEL       org.opencontainers.image.source="https://github.com/x08xNickelodeon/pterodactyl-yolks"
 LABEL       org.opencontainers.image.licenses=MIT
 
-# Remove unused tools
-RUN         rm -rf /usr/bin/dd \
-            && rm -rf /usr/bin/fallocate \
-            && rm -rf /usr/bin/truncate \
-            && rm -rf /usr/bin/xfs_mkfile
+# Remove unused disk utilities
+RUN rm -rf /usr/bin/dd /usr/bin/fallocate /usr/bin/truncate /usr/bin/xfs_mkfile
 
-# Base packages
-RUN         apt-get update -y \
-            && apt-get install -y curl jq unzip lsof ca-certificates openssl git tar sqlite3 fontconfig libfreetype6 tzdata iproute2 libstdc++6 bash
+# Install base tools, Node.js (via NodeSource), and mc-monitor
+RUN apt-get update -y \
+    && apt-get install -y curl bash ca-certificates gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs jq unzip lsof openssl git tar sqlite3 fontconfig libfreetype6 tzdata iproute2 libstdc++6 \
+    && npm install -g mc-monitor
 
 # Download malware scanner
-RUN         curl -sSL https://github.com/OpticFusion1/MCAntiMalware/releases/latest/download/MCAntiMalware.jar \
-            -o /MCAntiMalware.jar
+RUN curl -sSL https://github.com/OpticFusion1/MCAntiMalware/releases/latest/download/MCAntiMalware.jar \
+    -o /MCAntiMalware.jar
 
-# Add user
-RUN         useradd -d /home/container -m container
+# Create container user
+RUN useradd -d /home/container -m container
 
-# Copy scripts and set permissions (as root)
-COPY        ./../entrypoint.sh /entrypoint.sh
-COPY        ./../idle_shutdown.sh /idle_shutdown.sh
-RUN         chmod +x /entrypoint.sh /idle_shutdown.sh
+# Copy scripts and make them executable
+COPY ./../entrypoint.sh /entrypoint.sh
+COPY ./../idle_shutdown.sh /idle_shutdown.sh
+RUN chmod +x /entrypoint.sh /idle_shutdown.sh
 
-# Switch to container user
-USER        container
-ENV         USER=container HOME=/home/container
-WORKDIR     /home/container
+# Set user and working directory
+USER container
+ENV USER=container HOME=/home/container
+WORKDIR /home/container
 
-# Entrypoint
-CMD         [ "/bin/bash", "/entrypoint.sh" ]
+# Set entrypoint
+CMD ["/bin/bash", "/entrypoint.sh"]
