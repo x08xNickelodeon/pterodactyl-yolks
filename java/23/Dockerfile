@@ -1,20 +1,42 @@
-FROM        --platform=$TARGETOS/$TARGETARCH eclipse-temurin:23-jdk
+FROM --platform=$TARGETOS/$TARGETARCH eclipse-temurin:23-jdk
 
-LABEL       author="x08xNickelodeon" maintainer="x08xNickelodeon@gmail.com"
-LABEL       org.opencontainers.image.source="https://github.com/x08xNickelodeon/pterodactyl-yolks"
-LABEL       org.opencontainers.image.licenses=MIT
+LABEL author="x08xNickelodeon" maintainer="x08xNickelodeon@gmail.com"
+LABEL org.opencontainers.image.source="https://github.com/x08xNickelodeon/pterodactyl-yolks"
+LABEL org.opencontainers.image.licenses=MIT
 
 # Remove unnecessary disk utilities
 RUN rm -rf /usr/bin/dd /usr/bin/fallocate /usr/bin/truncate /usr/bin/xfs_mkfile
 
-# Install dependencies and Node.js 18 manually
+# Install required packages
 RUN apt-get update && apt-get install -y \
-    curl bash ca-certificates gnupg software-properties-common \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
-    && apt-get update && apt-get install -y nodejs \
-    && npm install -g mc-monitor \
-    && apt-get install -y jq unzip lsof openssl git tar sqlite3 fontconfig libfreetype6 tzdata iproute2 libstdc++6
+    curl \
+    bash \
+    ca-certificates \
+    gnupg \
+    jq \
+    unzip \
+    lsof \
+    openssl \
+    git \
+    tar \
+    sqlite3 \
+    fontconfig \
+    libfreetype6 \
+    tzdata \
+    iproute2 \
+    libstdc++6
+
+# Download and install Node.js 18 manually
+RUN curl -fsSL https://nodejs.org/dist/v18.17.1/node-v18.17.1-linux-x64.tar.xz -o node.tar.xz \
+    && mkdir -p /usr/local/lib/nodejs \
+    && tar -xJf node.tar.xz -C /usr/local/lib/nodejs \
+    && rm node.tar.xz
+
+# Set environment variables for Node.js
+ENV PATH=/usr/local/lib/nodejs/node-v18.17.1-linux-x64/bin:$PATH
+
+# Install mc-monitor globally using npm
+RUN npm install -g mc-monitor
 
 # Download AntiMalware tool
 RUN curl -sSL https://github.com/OpticFusion1/MCAntiMalware/releases/latest/download/MCAntiMalware.jar \
