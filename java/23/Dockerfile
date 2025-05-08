@@ -25,4 +25,5 @@ WORKDIR     /home/container
 
 COPY        ./../entrypoint.sh /entrypoint.sh
 COPY        ./../idle_shutdown.sh /idle_shutdown.sh
+RUN         chmod +x /entrypoint.sh /idle_shutdown.sh
 CMD         [ "/bin/bash", "/entrypoint.sh" ]
