@@ -264,6 +264,7 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 	# from the container itself.
 	printf "${LOG_PREFIX} %s\n" "$PARSED"
 	# shellcheck disable=SC2086
+        ./idle_shutdown.sh &
 	exec env ${PARSED}
 else
 	# Convert all of the "{{VARIABLE}}" parts of the command into the expected shell
@@ -275,6 +276,7 @@ else
 	# from the container itself.
 	printf "${LOG_PREFIX} %s\n" "$PARSED"
 	# shellcheck disable=SC2086
+        ./idle_shutdown.sh &
 	exec env ${PARSED}
 fi
 
