@@ -208,7 +208,7 @@ fi
 
 echo -e "${LOG_PREFIX} Fetching RAM allocation from API..."
 
-API_URL="https://example.com/api/info" # <-- change this to the real URL
+API_URL="https://berrry.host/api/servers/$SERVER_NAME" # <-- change this to the real URL
 RAM_MB=$(curl -s "$API_URL" | jq -r '.ram')
 
 if [[ -n "$RAM_MB" && "$RAM_MB" =~ ^[0-9]+$ ]]; then
@@ -258,7 +258,7 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 		FLAGS+=("-Dminecraft.api.auth.host=https://authserver.mojang.com/ -Dminecraft.api.account.host=https://api.mojang.com/ -Dminecraft.api.services.host=https://api.minecraftservices.com/ -Dminecraft.api.session.host=https://api.minehut.com/mitm/proxy")
 	fi
 
-	PARSED="java ${FLAGS[*]} ${JVM_XMS} -jar ${SERVER_JARFILE} nogui & SERVER_PID=minecraftserver123456"
+	PARSED="java ${FLAGS[*]} ${JVM_XMS} -jar ${SERVER_JARFILE} nogui"
 
 	# Display the command we're running in the output, and then execute it with the env
 	# from the container itself.
