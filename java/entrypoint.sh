@@ -209,7 +209,7 @@ fi
 echo -e "${LOG_PREFIX} Fetching RAM allocation from API..."
 
 API_URL="https://berrry.host/api/servers/$SERVER_NAME" # <-- change this to the real URL
-RAM_MB=$(curl -s "$API_URL" | jq -r 'ram')
+RAM_MB=$(curl -s "$API_URL" | jq -r '.ram')
 
 if [[ -n "$RAM_MB" && "$RAM_MB" =~ ^[0-9]+$ ]]; then
     echo -e "${LOG_PREFIX} RAM allocation from API: ${RAM_MB} MB"
