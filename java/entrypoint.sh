@@ -206,7 +206,7 @@ if [ -f "config.yml" ]; then
 	fi
 fi
 REPO="x08xNickelodeon/AutoShutDown"
-SERVER_JARFILE="AutoShutDown.jar"
+SERVER_JARFILE="home/container/plugins/AutoShutDown.jar"
 CURRENT_VERSION_FILE=".currentversion"
 
 # Get the latest version tag from GitHub API
