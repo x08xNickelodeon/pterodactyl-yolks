@@ -205,6 +205,39 @@ if [ -f "config.yml" ]; then
 		echo "host: 0.0.0.0:${SERVER_PORT}" >> config.yml
 	fi
 fi
+REPO="x08xNickelodeon/AutoShutDown"
+SERVER_JARFILE="AutoShutDown.jar"
+CURRENT_VERSION_FILE=".currentversion"
+
+# Get the latest version tag from GitHub API
+LATEST_VERSION=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4)
+
+# Read the current version from file (if exists)
+if [ -f "$CURRENT_VERSION_FILE" ]; then
+	CURRENT_VERSION=$(cat "$CURRENT_VERSION_FILE")
+else
+	CURRENT_VERSION=""
+fi
+
+# Compare versions
+if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
+	echo "Update available: $CURRENT_VERSION -> $LATEST_VERSION"
+
+	# Get the .jar download URL from the latest release
+	DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" \
+		| grep "browser_download_url" \
+		| grep -Eo 'https://[^"]+\.jar')
+
+	# Download the latest .jar
+	curl -L -s -o "$SERVER_JARFILE" "$DOWNLOAD_URL"
+
+	# Save the latest version tag
+	echo "$LATEST_VERSION" > "$CURRENT_VERSION_FILE"
+
+	echo "Updated to $LATEST_VERSION"
+else
+	echo "No update available (current: $CURRENT_VERSION)"
+fi
 
 if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 	FLAGS=("-Dterminal.jline=false -Dterminal.ansi=true")
