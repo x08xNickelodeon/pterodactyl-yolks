@@ -46,5 +46,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/x08xnickelodeon/pterodactyl-yolks:java_${{ matrix.tag }}
+            ghcr.io/x08xnickelodeon/pterodactyl-yolks:luny_java_${{ matrix.tag }}
           visibility: public
