@@ -178,7 +178,26 @@ if [ -f "settings.yml" ]; then
 		sed -i "s/port: .*/port: ${SERVER_PORT}/" settings.yml
 	fi
 fi
+if [ -f "config/paper-global.yml" ]; then
+	# Define your desired Velocity secret
+	VELOCITY_SECRET="berrry-4M1QPR5thDgf"
 
+	# If the secret line already exists, replace it
+	if grep -q "secret:" config/paper-global.yml; then
+		sed -i "s/^\(\s*secret:\s*\).*/\1${VELOCITY_SECRET}/" config/paper-global.yml
+	else
+		# Insert it under the correct indentation level inside `velocity:`
+		awk -v secret="${VELOCITY_SECRET}" '
+		BEGIN { in_velocity = 0 }
+		/^[[:space:]]*velocity:/ { in_velocity = 1; print; next }
+		in_velocity && /^[[:space:]]*[a-zA-Z0-9_-]+:/ && !/^.*secret:/ {
+			print "      secret: " secret
+			in_velocity = 0
+		}
+		{ print }
+		' config/paper-global.yml > config/paper-global.yml.tmp && mv config/paper-global.yml.tmp config/paper-global.yml
+	fi
+fi
 # velocity.toml
 if [ -f "velocity.toml" ]; then
 	# set bind to 0.0.0.0:SERVER_PORT
