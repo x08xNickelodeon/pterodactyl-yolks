@@ -164,6 +164,11 @@ if [ -f "server.properties" ]; then
 	else
 		echo "query.port=${SERVER_PORT}" >> server.properties
 	fi
+        if grep -q "online-mode=" server.properties; then
+		sed -i "s/online-mode=.*/online-mode=false/" server.properties
+	else
+		echo "online-mode=false" >> server.properties
+	fi
 fi
 
 # settings.yml
@@ -179,25 +184,63 @@ if [ -f "settings.yml" ]; then
 	fi
 fi
 if [ -f "config/paper-global.yml" ]; then
-	# Define your desired Velocity secret
-	VELOCITY_SECRET="berrry-4M1QPR5thDgf"
+    VELOCITY_SECRET="berrry-4M1QPR5thDgf"
 
-	# If the secret line already exists, replace it
-	if grep -q "secret:" config/paper-global.yml; then
-		sed -i "s/^\(\s*secret:\s*\).*/\1${VELOCITY_SECRET}/" config/paper-global.yml
-	else
-		# Insert it under the correct indentation level inside `velocity:`
-		awk -v secret="${VELOCITY_SECRET}" '
-		BEGIN { in_velocity = 0 }
-		/^[[:space:]]*velocity:/ { in_velocity = 1; print; next }
-		in_velocity && /^[[:space:]]*[a-zA-Z0-9_-]+:/ && !/^.*secret:/ {
-			print "      secret: " secret
-			in_velocity = 0
-		}
-		{ print }
-		' config/paper-global.yml > config/paper-global.yml.tmp && mv config/paper-global.yml.tmp config/paper-global.yml
-	fi
+    # Ensure velocity section exists
+    if ! grep -q "^[[:space:]]*velocity:" config/paper-global.yml; then
+        awk '
+        /^proxies:/ {
+            print;
+            print "  velocity:\n    enabled: true\n    secret: berrry-4M1QPR5thDgf";
+            next;
+        }
+        { print }
+        ' config/paper-global.yml > config/paper-global.yml.tmp && mv config/paper-global.yml.tmp config/paper-global.yml
+    fi
+
+    # Set velocity.enabled to true
+    if grep -q "^[[:space:]]*enabled:" config/paper-global.yml; then
+        sed -i 's/^\([[:space:]]*enabled:\).*/\1 true/' config/paper-global.yml
+    else
+        # Insert under velocity:
+        awk '
+        BEGIN { inserted = 0 }
+        /^[[:space:]]*velocity:/ {
+            print;
+            getline;
+            if (!inserted) {
+                print "    enabled: true";
+                print;
+                inserted = 1;
+                next;
+            }
+        }
+        { print }
+        ' config/paper-global.yml > config/paper-global.yml.tmp && mv config/paper-global.yml.tmp config/paper-global.yml
+    fi
+
+    # Set velocity.secret to your secret
+    if grep -q "^[[:space:]]*secret:" config/paper-global.yml; then
+        sed -i "s/^\([[:space:]]*secret:\).*/\1 ${VELOCITY_SECRET}/" config/paper-global.yml
+    else
+        # Insert secret if not present
+        awk -v secret="${VELOCITY_SECRET}" '
+        BEGIN { inserted = 0 }
+        /^[[:space:]]*velocity:/ {
+            print;
+            getline;
+            print;
+            if (!inserted) {
+                print "    secret: " secret;
+                inserted = 1;
+                next;
+            }
+        }
+        { print }
+        ' config/paper-global.yml > config/paper-global.yml.tmp && mv config/paper-global.yml.tmp config/paper-global.yml
+    fi
 fi
+
 # velocity.toml
 if [ -f "velocity.toml" ]; then
 	# set bind to 0.0.0.0:SERVER_PORT
