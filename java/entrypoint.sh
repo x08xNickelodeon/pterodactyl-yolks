@@ -31,8 +31,8 @@ if [ ! -f "$SERVER_JARFILE" ]; then
 fi
 
 # Check for version.json inside the JAR
-if unzip -l "$SERVER_JARFILE" | grep -q "version.list"; then
-    version=$(unzip -p "$SERVER_JARFILE" version.list | grep -o '"name": *"[^"]*"' | head -n1 | cut -d'"' -f4)
+if unzip -l "$SERVER_JARFILE" | grep -q "versions.list"; then
+    version=$(unzip -p "$SERVER_JARFILE" versions.list | grep -o '"name": *"[^"]*"' | head -n1 | cut -d'"' -f4)
     echo -e "${LOG_PREFIX} ✅ Detected Minecraft server"
 else
     echo -e "${LOG_PREFIX} ❌ Not a valid Minecraft server."
