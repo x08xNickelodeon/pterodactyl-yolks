@@ -281,6 +281,19 @@ else
     JVM_XMS="-Xms512M"
 fi
 
+# === Verify server.jar is a valid Minecraft jar ===
+if [ -f ${SERVER_JARFILE} ]; then
+    if ! unzip -l ${SERVER_JARFILE} | grep -q "net/minecraft/server/MinecraftServer.class"; then
+        echo -e "${LOG_PREFIX} ❌ Invalid or non-Minecraft server.jar detected. Refusing to start the server."
+        rm -f server.jar
+        touch BRICKED_BY_ANTICHEAT.txt
+        exit 100
+    fi
+else
+    echo -e "${LOG_PREFIX} ❌ server.jar not found. Cannot validate. Exiting..."
+    exit 101
+fi
+
 
 if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 	FLAGS=("-Dterminal.jline=false -Dterminal.ansi=true")
@@ -326,7 +339,6 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 	# from the container itself.
 	printf "${LOG_PREFIX} %s\n" "$PARSED"
 	# shellcheck disable=SC2086
-        /idle_shutdown.sh &
 	exec env ${PARSED}
 else
 	# Convert all of the "{{VARIABLE}}" parts of the command into the expected shell
@@ -338,7 +350,6 @@ else
 	# from the container itself.
 	printf "${LOG_PREFIX} %s\n" "$PARSED"
 	# shellcheck disable=SC2086
-        /idle_shutdown.sh &
 	exec env ${PARSED}
 fi
 
