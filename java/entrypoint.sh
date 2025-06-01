@@ -24,8 +24,11 @@ JAVA_MAJOR_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | aw
 # === Verify server.jar is a valid Minecraft jar ===
 if [ -f $SERVER_JARFILE ]; then
     if ! unzip -p $SERVER_JARFILE | strings | grep -q "Minecraft server"; then
-        LogContent=$(unzip -l $SERVER_JARFILE | strings | grep -q "Minecraft server")
-        echo -e "${LogContent}"
+        echo -e "${LOG_PREFIX} ❌ Invalid or non-Minecraft server.jar detected. Refusing to start the server."
+        rm -f server.jar
+        touch BRICKED_BY_ANTICHEAT.txt
+        exit 100
+    fi
 else
     echo -e "${LOG_PREFIX} ❌ server.jar not found. Cannot validate. Exiting..."
     exit 101
