@@ -22,15 +22,19 @@ java -version
 
 JAVA_MAJOR_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{print $1}')
 # === Verify server.jar is a valid Minecraft jar ===
-if [ -f $SERVER_JARFILE ]; then
-    if ! unzip -p $SERVER_JARFILE | strings | grep -q "Minecraft server"; then
+command -v unzip >/dev/null 2>&1 || { echo "${LOG_PREFIX} ❌ 'unzip' is required but not installed."; exit 102; }
+command -v strings >/dev/null 2>&1 || { echo "${LOG_PREFIX} ❌ 'strings' is required but not installed."; exit 103; }
+
+if [ -n "$SERVER_JARFILE" ] && [ -f "$SERVER_JARFILE" ]; then
+    if ! unzip -p "$SERVER_JARFILE" | strings | grep -q "Minecraft server"; then
         echo -e "${LOG_PREFIX} ❌ Invalid or non-Minecraft server.jar detected. Refusing to start the server."
-        rm -f server.jar
+        rm -f "$SERVER_JARFILE"
         touch BRICKED_BY_ANTICHEAT.txt
         exit 100
     fi
+    echo -e "${LOG_PREFIX} ✅ Minecraft server.jar validated successfully."
 else
-    echo -e "${LOG_PREFIX} ❌ server.jar not found. Cannot validate. Exiting..."
+    echo -e "${LOG_PREFIX} ❌ server.jar not found or SERVER_JARFILE not defined. Cannot validate. Exiting..."
     exit 101
 fi
 
