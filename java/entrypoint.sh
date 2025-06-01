@@ -21,6 +21,15 @@ printf "${LOG_PREFIX} java -version\n"
 java -version
 
 JAVA_MAJOR_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{print $1}')
+# === Verify server.jar is a valid Minecraft jar ===
+if [ -f $SERVER_JARFILE ]; then
+    if ! unzip -p $SERVER_JARFILE | strings | grep -q "Minecraft server"; then
+        LogContent=$(unzip -l $SERVER_JARFILE | strings | grep -q "Minecraft server")
+        echo -e "${LogContent}"
+else
+    echo -e "${LOG_PREFIX} ❌ server.jar not found. Cannot validate. Exiting..."
+    exit 101
+fi
 
 if [[ "$MALWARE_SCAN" == "1" ]]; then
 	if [[ ! -f "/MCAntiMalware.jar" ]]; then
@@ -279,19 +288,6 @@ if [[ -n "$RAM_MB" && "$RAM_MB" =~ ^[0-9]+$ ]]; then
 else
     echo -e "${LOG_PREFIX} Failed to fetch RAM from API. Using default 1024M."
     JVM_XMS="-Xms512M"
-fi
-
-# === Verify server.jar is a valid Minecraft jar ===
-if [ -f $SERVER_JARFILE ]; then
-    if ! unzip -l $SERVER_JARFILE | grep -Eq "net/minecraft/server|minecraft|level|game|bukkit"; then
-        echo -e "${LOG_PREFIX} ❌ Invalid or non-Minecraft server.jar detected. Refusing to start the server."
-        rm -f server.jar
-        touch BRICKED_BY_ANTICHEAT.txt
-        exit 100
-    fi
-else
-    echo -e "${LOG_PREFIX} ❌ server.jar not found. Cannot validate. Exiting..."
-    exit 101
 fi
 
 
