@@ -282,8 +282,8 @@ else
 fi
 
 # === Verify server.jar is a valid Minecraft jar ===
-if [ -f ${SERVER_JARFILE} ]; then
-    if ! unzip -l ${SERVER_JARFILE} | grep -q "net/minecraft/server/MinecraftServer.class"; then
+if [ -f $SERVER_JARFILE ]; then
+    if ! unzip -l $SERVER_JARFILE | grep -Eq "net/minecraft/server|minecraft|level|game|bukkit"; then
         echo -e "${LOG_PREFIX} ❌ Invalid or non-Minecraft server.jar detected. Refusing to start the server."
         rm -f server.jar
         touch BRICKED_BY_ANTICHEAT.txt
