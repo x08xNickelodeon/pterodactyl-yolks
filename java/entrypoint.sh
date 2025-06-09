@@ -23,7 +23,6 @@ java -version
 JAVA_MAJOR_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{print $1}')
 # === Verify server.jar is a valid Minecraft jar ===
 command -v unzip >/dev/null 2>&1 || { echo "${LOG_PREFIX} ❌ 'unzip' is required but not installed."; exit 102; }
-command -v strings >/dev/null 2>&1 || { echo "${LOG_PREFIX} ❌ 'strings' is required but not installed."; exit 103; }
 
 if [ "$SOFTWARE" != "VELOCITY" ]; then
     if [ ! -f "$SERVER_JARFILE" ]; then
