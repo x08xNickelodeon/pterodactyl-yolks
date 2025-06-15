@@ -6,14 +6,7 @@ export TZ
 
 # Set environment variable that holds the Internal Docker IP
 # Try to dynamically detect correct IP based on preferred interface order
-for iface in enp1s0f1 enp1s0f0; do
-  ipaddr=$(ip -4 addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)
-  if [ -n "$ipaddr" ]; then
-    INTERNAL_IP=$ipaddr
-    break
-  fi
-done
-
+INTERNAL_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
 export INTERNAL_IP
 echo "INTERNAL_IP set to $INTERNAL_IP"
 
