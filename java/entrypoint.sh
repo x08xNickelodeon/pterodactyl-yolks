@@ -5,8 +5,17 @@ TZ=${TZ:-UTC}
 export TZ
 
 # Set environment variable that holds the Internal Docker IP
-INTERNAL_IP=$(ip route get 1 | awk '{print $(NF-2);exit}')
+# Try to dynamically detect correct IP based on preferred interface order
+for iface in enp1s0f1 enp1s0f0; do
+  ipaddr=$(ip -4 addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)
+  if [ -n "$ipaddr" ]; then
+    INTERNAL_IP=$ipaddr
+    break
+  fi
+done
+
 export INTERNAL_IP
+echo "INTERNAL_IP set to $INTERNAL_IP"
 
 # check if LOG_PREFIX is set
 if [ -z "$LOG_PREFIX" ]; then
