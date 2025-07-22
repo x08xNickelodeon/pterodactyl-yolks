@@ -24,25 +24,33 @@ java -version
 
 JAVA_MAJOR_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{print $1}')
 # === Verify server.jar is a valid Minecraft jar ===
-command -v unzip >/dev/null 2>&1 || { echo "${LOG_PREFIX} ❌ 'unzip' is required but not installed."; exit 102; }
+# Requires: curl, jq
+command -v jq >/dev/null 2>&1 || {
+    echo "${LOG_PREFIX} ❌ 'jq' is required but not installed."
+    exit 104
+}
+# Get the SHA-256 hash of the JAR
+JAR_HASH=$(sha256sum "$SERVER_JARFILE" | cut -d' ' -f1)
+
+# Query mcjar.app API
+API_RESPONSE=$(curl -s "https://mcjars.app/api/v1/build/${JAR_HASH}")
+
+# Check success field using jq
+IS_VALID=$(echo "$API_RESPONSE" | jq -r '.success')
 
 if [ "$SOFTWARE" != "VELOCITY" ]; then
-    if [ ! -f "$SERVER_JARFILE" ]; then
-        echo -e "${LOG_PREFIX} ❌ server.jar not found. Cannot validate. Exiting..."
-        exit 101
-    fi
-
-    # Check for version.json inside the JAR
-    if unzip -l "$SERVER_JARFILE" | grep -q "versions.list"; then
-        version=$(unzip -p "$SERVER_JARFILE" versions.list | grep -o '"name": *"[^"]*"' | head -n1 | cut -d'"' -f4)
-        echo -e "${LOG_PREFIX} ✅ Detected Minecraft server"
+    if [ "$IS_VALID" = "true" ]; then
+        TYPE=$(echo "$API_RESPONSE" | jq -r '.build.type')
+        VERSION=$(echo "$API_RESPONSE" | jq -r '.build.versionId')
+        echo -e "${LOG_PREFIX} ✅ Verified server.jar hash with mcjar.app - Type: $TYPE, Version: $VERSION"
     else
-        echo -e "${LOG_PREFIX} ❌ Not a valid Minecraft server."
+        echo -e "${LOG_PREFIX} ❌ Unknown or untrusted server.jar (hash: $JAR_HASH)"
         rm -f "$SERVER_JARFILE"
         touch BRICKED_BY_ANTICHEAT.txt
-        exit 100
+        exit 105
     fi
 fi
+
 
 
 if [[ "$MALWARE_SCAN" == "1" ]]; then
