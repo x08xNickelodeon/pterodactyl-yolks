@@ -42,10 +42,13 @@ if [ "$SOFTWARE" != "VELOCITY" ]; then
     if [ "$IS_VALID" = "true" ]; then
         TYPE=$(echo "$API_RESPONSE" | jq -r '.build.type')
         VERSION=$(echo "$API_RESPONSE" | jq -r '.build.versionId')
-	if [ "$TYPE" = "Velocity" ]; then
-            echo -e "${LOG_PREFIX} ❌ Velocity is not permited to be used on this server (hash: $JAR_HASH)"
-	else
+
+        if [ "$TYPE" = "Velocity" ]; then
+            echo -e "${LOG_PREFIX} ❌ Velocity is not permitted to be used on this server (hash: $JAR_HASH)"
+            exit 106
+        else
             echo -e "${LOG_PREFIX} ✅ Verified server.jar hash with mcjar.app - Type: $TYPE, Version: $VERSION"
+        fi
     else
         echo -e "${LOG_PREFIX} ❌ Unknown or untrusted server.jar (hash: $JAR_HASH)"
         rm -f "$SERVER_JARFILE"
@@ -53,6 +56,7 @@ if [ "$SOFTWARE" != "VELOCITY" ]; then
         exit 105
     fi
 fi
+
 
 
 
