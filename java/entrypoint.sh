@@ -45,7 +45,7 @@ if [ "$SOFTWARE" != "VELOCITY" ]; then
         LOWER_TYPE=$(echo "$TYPE" | tr '[:upper:]' '[:lower:]')
 
         # === Blocklist of disallowed server types ===
-        BLOCKED_TYPES=("velocity" "bungeecord" "waterfall")
+        BLOCKED_TYPES=("velocity" "bungeecord" "waterfall" "magma" "forge" "fabric")
 
         for blocked in "${BLOCKED_TYPES[@]}"; do
             if [ "$LOWER_TYPE" = "$blocked" ]; then
