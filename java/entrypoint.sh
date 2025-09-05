@@ -250,7 +250,7 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 			"-XX:G1ReservePercent=20"
 			"-XX:InitiatingHeapOccupancyPercent=15"
 			"-XX:MaxGCPauseMillis=200"
-			"-XX:MaxTenuringThreshold=1"
+			"-XX:MaxTenuringThreshold=16"
 			"-XX:SurvivorRatio=32"
 			"-Dusing.aikars.flags=https://mcflags.emc.gs"
 			"-Daikars.new.flags=true"
@@ -282,8 +282,8 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
 	else
 	    SERVER_MEMORY_REAL=$(($SERVER_MEMORY * $MAXIMUM_RAM / 100))
 	fi
-
-	PARSED="java ${FLAGS[*]} -Xms256M -Xmx${SERVER_MEMORY_REAL}M -jar ${SERVER_JARFILE} nogui"
+    SERVER_MEMORY_MIN=${SERVER_MEMORY_REAL}/2
+	PARSED="java ${FLAGS[*]} -Xms${SERVER_MEMORY_MIN}M -Xmx${SERVER_MEMORY_REAL}M -jar ${SERVER_JARFILE} nogui"
 
 
 	# Display the command we're running in the output, and then execute it with the env
