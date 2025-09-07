@@ -23,7 +23,15 @@ cd /home/container || exit 1
 printf "${LOG_PREFIX} java -version\n"
 java -version
 
-JAVA_MAJOR_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | awk -F '.' '{print $1}')
+JAVA_VERSION_OUTPUT=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+
+# If version starts with "1.", it's Java 8 or lower (e.g., "1.8.0_312")
+if [[ "$JAVA_VERSION_OUTPUT" == 1.* ]]; then
+    JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION_OUTPUT" | awk -F. '{print $2}')
+else
+    JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION_OUTPUT" | awk -F. '{print $1}')
+fi
+
 
 if [[ "$MALWARE_SCAN" == "1" ]]; then
 	if [[ ! -f "/MCAntiMalware.jar" ]]; then
