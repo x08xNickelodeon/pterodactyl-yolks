@@ -254,6 +254,7 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
         "-Dusing.aikars.flags=https://mcflags.emc.gs"
         "-Daikars.new.flags=true"
     )
+	
 
     # Set MaxTenuringThreshold depending on Java version
     if [[ "$JAVA_MAJOR_VERSION" -eq 8 ]]; then
@@ -261,6 +262,7 @@ if [[ "$OVERRIDE_STARTUP" == "1" ]]; then
     else
         FLAGS+=("-XX:MaxTenuringThreshold=16")
     fi
+	fi
 
     # Only add AlwaysPreTouch if PRETOUCH=1
     if [[ "$PRETOUCH" == "1" ]]; then
